@@ -757,6 +757,87 @@
       resize: vertical;
     }
 
+    .length-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 18px;
+      align-items: end;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .length-side {
+      display: grid;
+      grid-template-columns: minmax(130px, 180px) minmax(0, 1fr);
+      gap: 12px;
+      align-items: end;
+      min-width: 0;
+    }
+
+    .select-wrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    .unit-select {
+      width: 100%;
+      height: 50px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: rgba(255, 253, 248, 0.92);
+      font-size: 18px;
+      font-weight: 720;
+    }
+
+    .length-input {
+      width: 100%;
+      height: 58px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: rgba(255, 253, 248, 0.92);
+      font-size: 24px;
+      font-weight: 680;
+      outline: 0;
+    }
+
+    .unit-select:focus,
+    .length-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
+    }
+
+    .swap-button {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: var(--panel);
+      cursor: pointer;
+    }
+
+    .swap-button:hover {
+      color: var(--ink);
+      border-color: rgba(15, 118, 110, 0.38);
+    }
+
+    .length-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 980px) {
       .app-shell {
         grid-template-columns: 1fr;
@@ -808,6 +889,19 @@
 
       .generator-panel {
         grid-template-columns: 1fr;
+      }
+
+      .length-card {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .length-side {
+        grid-template-columns: 1fr;
+      }
+
+      .swap-button {
+        justify-self: center;
       }
 
       .rail {
@@ -1209,6 +1303,55 @@
           </article>
         </section>
       </div>
+
+      <div class="tool-view" id="tool-length-converter">
+        <section class="length-card" aria-label="长度转换">
+          <div class="length-side">
+            <label class="select-wrap">
+              <span class="form-label">原单位</span>
+              <select class="unit-select" id="lengthFromUnit"></select>
+            </label>
+            <label>
+              <span class="form-label">原数值</span>
+              <input class="length-input" id="lengthFromValue" type="text" inputmode="decimal" value="1" autocomplete="off">
+            </label>
+          </div>
+
+          <button type="button" class="swap-button" id="swapLengthBtn" title="交换单位" aria-label="交换单位">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 7h13"></path>
+              <path d="m16 3 4 4-4 4"></path>
+              <path d="M17 17H4"></path>
+              <path d="m8 13-4 4 4 4"></path>
+            </svg>
+          </button>
+
+          <div class="length-side">
+            <label class="select-wrap">
+              <span class="form-label">目标单位</span>
+              <select class="unit-select" id="lengthToUnit"></select>
+            </label>
+            <label>
+              <span class="form-label">目标数值</span>
+              <input class="length-input" id="lengthToValue" type="text" inputmode="decimal" autocomplete="off">
+            </label>
+          </div>
+        </section>
+
+        <section class="length-actions" aria-label="长度转换操作">
+          <button type="button" class="ghost" id="clearLengthBtn">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 6h18"></path>
+              <path d="M8 6V4h8v2"></path>
+              <path d="m19 6-1 14H6L5 6"></path>
+              <path d="M10 11v5"></path>
+              <path d="M14 11v5"></path>
+            </svg>
+            清空
+          </button>
+          <div class="status" id="lengthStatus" role="status" aria-live="polite"></div>
+        </section>
+      </div>
     </section>
   </main>
 
@@ -1319,6 +1462,19 @@
         ]
       },
       {
+        id: "length-converter",
+        name: "长度转换",
+        category: "单位换算",
+        description: "常用公制、英制与天文长度互转",
+        icon: "m",
+        status: "ready",
+        help: [
+          "选择原单位和目标单位",
+          "输入任意一侧数值即可自动换算",
+          "点击交换可以快速反向转换"
+        ]
+      },
+      {
         id: "url-codec",
         name: "URL 编解码",
         category: "开发工具",
@@ -1370,6 +1526,11 @@
     const uuidOutput = document.querySelector("#uuidOutput");
     const uuidCountLabel = document.querySelector("#uuidCountLabel");
     const uuidStatus = document.querySelector("#uuidStatus");
+    const lengthFromUnit = document.querySelector("#lengthFromUnit");
+    const lengthToUnit = document.querySelector("#lengthToUnit");
+    const lengthFromValue = document.querySelector("#lengthFromValue");
+    const lengthToValue = document.querySelector("#lengthToValue");
+    const lengthStatus = document.querySelector("#lengthStatus");
 
     let mode = "s2t";
     let activeToolId = "chinese-converter";
@@ -1377,9 +1538,12 @@
     let temperatureStatusTimer;
     let baseStatusTimer;
     let uuidStatusTimer;
+    let lengthStatusTimer;
     let saveTimer;
     let syncingTemperature = false;
     let syncingBase = false;
+    let syncingLength = false;
+    let activeLengthSide = "from";
 
     function renderToolNav() {
       const query = toolSearch.value.trim().toLowerCase();
@@ -1550,6 +1714,107 @@
       uuidStatusTimer = setTimeout(() => {
         uuidStatus.textContent = "";
       }, 1800);
+    }
+
+    function setLengthStatus(text) {
+      clearTimeout(lengthStatusTimer);
+      lengthStatus.textContent = text;
+      lengthStatusTimer = setTimeout(() => {
+        lengthStatus.textContent = "";
+      }, 1800);
+    }
+
+    const lengthUnits = [
+      { id: "m", name: "米", symbol: "m", meters: 1 },
+      { id: "km", name: "千米", symbol: "km", meters: 1000 },
+      { id: "dm", name: "分米", symbol: "dm", meters: 0.1 },
+      { id: "cm", name: "厘米", symbol: "cm", meters: 0.01 },
+      { id: "mm", name: "毫米", symbol: "mm", meters: 0.001 },
+      { id: "um", name: "微米", symbol: "um", meters: 0.000001 },
+      { id: "nm", name: "纳米", symbol: "nm", meters: 0.000000001 },
+      { id: "zhang", name: "丈", symbol: "丈", meters: 10 / 3 },
+      { id: "chi", name: "尺", symbol: "尺", meters: 1 / 3 },
+      { id: "cun", name: "寸", symbol: "寸", meters: 1 / 30 },
+      { id: "fen", name: "分", symbol: "分", meters: 1 / 300 },
+      { id: "li-small", name: "厘", symbol: "厘", meters: 1 / 3000 },
+      { id: "li", name: "里", symbol: "里", meters: 500 },
+      { id: "mile", name: "英里", symbol: "mi", meters: 1609.344 },
+      { id: "yard", name: "码", symbol: "yd", meters: 0.9144 },
+      { id: "foot", name: "英尺", symbol: "ft", meters: 0.3048 },
+      { id: "inch", name: "英寸", symbol: "in", meters: 0.0254 },
+      { id: "nautical-mile", name: "海里", symbol: "nmi", meters: 1852 },
+      { id: "light-year", name: "光年", symbol: "ly", meters: 9460730472580800 },
+      { id: "au", name: "天文单位", symbol: "AU", meters: 149597870700 }
+    ];
+
+    function populateLengthUnits() {
+      const options = lengthUnits.map(unit => `<option value="${unit.id}">${unit.name}</option>`).join("");
+      lengthFromUnit.innerHTML = options;
+      lengthToUnit.innerHTML = options;
+      lengthFromUnit.value = "km";
+      lengthToUnit.value = "m";
+    }
+
+    function getLengthUnit(unitId) {
+      return lengthUnits.find(unit => unit.id === unitId);
+    }
+
+    function formatLength(value) {
+      if (!Number.isFinite(value)) return "";
+      if (value === 0) return "0";
+      const abs = Math.abs(value);
+      if (abs >= 1e12 || abs < 1e-7) {
+        return value.toExponential(10).replace(/\.?0+e/, "e");
+      }
+      return Number(value.toPrecision(12)).toString();
+    }
+
+    function parseLengthValue(value) {
+      const normalized = value.trim().replace(/,/g, "");
+      if (!normalized) return null;
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function convertLength(side = activeLengthSide) {
+      if (syncingLength) return;
+      activeLengthSide = side;
+      const fromUnit = getLengthUnit(lengthFromUnit.value);
+      const toUnit = getLengthUnit(lengthToUnit.value);
+      const sourceInput = side === "from" ? lengthFromValue : lengthToValue;
+      const targetInput = side === "from" ? lengthToValue : lengthFromValue;
+      const sourceUnit = side === "from" ? fromUnit : toUnit;
+      const targetUnit = side === "from" ? toUnit : fromUnit;
+      const value = parseLengthValue(sourceInput.value);
+
+      syncingLength = true;
+      if (value === null) {
+        targetInput.value = "";
+        syncingLength = false;
+        return;
+      }
+
+      const meters = value * sourceUnit.meters;
+      targetInput.value = formatLength(meters / targetUnit.meters);
+      syncingLength = false;
+    }
+
+    function swapLengthUnits() {
+      const fromUnit = lengthFromUnit.value;
+      lengthFromUnit.value = lengthToUnit.value;
+      lengthToUnit.value = fromUnit;
+      const fromValue = lengthFromValue.value;
+      lengthFromValue.value = lengthToValue.value;
+      lengthToValue.value = fromValue;
+      activeLengthSide = activeLengthSide === "from" ? "to" : "from";
+      convertLength(activeLengthSide);
+    }
+
+    function clearLengthValues() {
+      lengthFromValue.value = "";
+      lengthToValue.value = "";
+      lengthFromValue.focus();
+      setLengthStatus("已清空");
     }
 
     function roundTemperature(value) {
@@ -1840,6 +2105,18 @@
       input.addEventListener("input", () => updateBaseValues(input));
       input.addEventListener("focus", () => input.select());
     });
+    lengthFromValue.addEventListener("input", () => convertLength("from"));
+    lengthToValue.addEventListener("input", () => convertLength("to"));
+    lengthFromValue.addEventListener("focus", () => {
+      activeLengthSide = "from";
+      lengthFromValue.select();
+    });
+    lengthToValue.addEventListener("focus", () => {
+      activeLengthSide = "to";
+      lengthToValue.select();
+    });
+    lengthFromUnit.addEventListener("change", () => convertLength(activeLengthSide));
+    lengthToUnit.addEventListener("change", () => convertLength(activeLengthSide));
 
     document.querySelector("#swapBtn").addEventListener("click", () => {
       const input = source.value;
@@ -1896,12 +2173,16 @@
     document.querySelector("#generateUuidBtn").addEventListener("click", generateUuids);
     document.querySelector("#copyUuidBtn").addEventListener("click", copyUuids);
     document.querySelector("#clearUuidBtn").addEventListener("click", clearUuids);
+    document.querySelector("#swapLengthBtn").addEventListener("click", swapLengthUnits);
+    document.querySelector("#clearLengthBtn").addEventListener("click", clearLengthValues);
     uuidCount.addEventListener("change", () => {
       uuidCount.value = normalizeUuidCount();
     });
 
     window.addEventListener("hashchange", () => setActiveTool(getInitialToolId()));
 
+    populateLengthUnits();
+    convertLength("from");
     setActiveTool(getInitialToolId());
     convert();
     renderHistory();
