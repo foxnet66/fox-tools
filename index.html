@@ -676,6 +676,87 @@
       color: #0284c7;
     }
 
+    .generator-panel {
+      display: grid;
+      grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .generator-settings,
+    .generator-output {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .generator-settings {
+      display: grid;
+      gap: 18px;
+      padding: 18px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 780;
+    }
+
+    .number-input {
+      width: 100%;
+      height: 52px;
+      border: 0;
+      border-bottom: 2px solid var(--line);
+      color: var(--ink);
+      background: transparent;
+      font-size: 28px;
+      font-weight: 720;
+      outline: 0;
+    }
+
+    .number-input:focus {
+      border-bottom-color: var(--accent);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 720;
+      cursor: pointer;
+    }
+
+    .radio-option input {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--accent);
+    }
+
+    .generator-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .generator-output textarea {
+      min-height: 360px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 15px;
+      line-height: 1.7;
+      resize: vertical;
+    }
+
     @media (max-width: 980px) {
       .app-shell {
         grid-template-columns: 1fr;
@@ -722,6 +803,10 @@
 
       .temperature-grid,
       .base-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .generator-panel {
         grid-template-columns: 1fr;
       }
 
@@ -1056,6 +1141,74 @@
           <div class="status" id="baseStatus" role="status" aria-live="polite"></div>
         </section>
       </div>
+
+      <div class="tool-view" id="tool-uuid-generator">
+        <section class="generator-panel" aria-label="UUID 生成">
+          <div class="generator-settings">
+            <label>
+              <span class="form-label">生成数量</span>
+              <input class="number-input" id="uuidCount" type="number" min="1" max="1000" step="1" value="1" inputmode="numeric">
+            </label>
+
+            <div>
+              <span class="form-label">字母格式</span>
+              <div class="radio-group" role="radiogroup" aria-label="UUID 字母格式">
+                <label class="radio-option">
+                  <input type="radio" name="uuidCase" value="lower" checked>
+                  小写
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="uuidCase" value="upper">
+                  大写
+                </label>
+              </div>
+            </div>
+
+            <div class="generator-buttons">
+              <button type="button" class="primary" id="generateUuidBtn">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2v4"></path>
+                  <path d="M12 18v4"></path>
+                  <path d="m4.93 4.93 2.83 2.83"></path>
+                  <path d="m16.24 16.24 2.83 2.83"></path>
+                  <path d="M2 12h4"></path>
+                  <path d="M18 12h4"></path>
+                  <path d="m4.93 19.07 2.83-2.83"></path>
+                  <path d="m16.24 7.76 2.83-2.83"></path>
+                </svg>
+                生成
+              </button>
+              <button type="button" class="ghost" id="copyUuidBtn">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                复制
+              </button>
+              <button type="button" class="ghost" id="clearUuidBtn">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 6h18"></path>
+                  <path d="M8 6V4h8v2"></path>
+                  <path d="m19 6-1 14H6L5 6"></path>
+                  <path d="M10 11v5"></path>
+                  <path d="M14 11v5"></path>
+                </svg>
+                清空
+              </button>
+            </div>
+
+            <div class="status" id="uuidStatus" role="status" aria-live="polite"></div>
+          </div>
+
+          <article class="generator-output">
+            <div class="panel-head">
+              <span class="panel-title">生成结果</span>
+              <span class="counter" id="uuidCountLabel">0 条</span>
+            </div>
+            <textarea id="uuidOutput" readonly spellcheck="false" placeholder="生成结果会显示在这里"></textarea>
+          </article>
+        </section>
+      </div>
     </section>
   </main>
 
@@ -1153,6 +1306,19 @@
         ]
       },
       {
+        id: "uuid-generator",
+        name: "UUID 生成",
+        category: "开发工具",
+        description: "批量生成 UUID v4",
+        icon: "U",
+        status: "ready",
+        help: [
+          "输入需要生成的 UUID 数量",
+          "选择小写或大写格式",
+          "点击生成后复制结果"
+        ]
+      },
+      {
         id: "url-codec",
         name: "URL 编解码",
         category: "开发工具",
@@ -1200,12 +1366,17 @@
     const baseInputs = [...document.querySelectorAll("[data-base]")];
     const baseStatus = document.querySelector("#baseStatus");
     const baseInfo = document.querySelector("#baseInfo span");
+    const uuidCount = document.querySelector("#uuidCount");
+    const uuidOutput = document.querySelector("#uuidOutput");
+    const uuidCountLabel = document.querySelector("#uuidCountLabel");
+    const uuidStatus = document.querySelector("#uuidStatus");
 
     let mode = "s2t";
     let activeToolId = "chinese-converter";
     let statusTimer;
     let temperatureStatusTimer;
     let baseStatusTimer;
+    let uuidStatusTimer;
     let saveTimer;
     let syncingTemperature = false;
     let syncingBase = false;
@@ -1370,6 +1541,14 @@
       baseStatus.textContent = text;
       baseStatusTimer = setTimeout(() => {
         baseStatus.textContent = "";
+      }, 1800);
+    }
+
+    function setUuidStatus(text) {
+      clearTimeout(uuidStatusTimer);
+      uuidStatus.textContent = text;
+      uuidStatusTimer = setTimeout(() => {
+        uuidStatus.textContent = "";
       }, 1800);
     }
 
@@ -1539,6 +1718,67 @@
       setBaseStatus("已清空");
     }
 
+    function fallbackUuid() {
+      return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, char => {
+        const random = crypto.getRandomValues(new Uint8Array(1))[0];
+        return (Number(char) ^ random & 15 >> Number(char) / 4).toString(16);
+      });
+    }
+
+    function createUuid() {
+      return crypto.randomUUID ? crypto.randomUUID() : fallbackUuid();
+    }
+
+    function getUuidCase() {
+      return document.querySelector("input[name='uuidCase']:checked").value;
+    }
+
+    function normalizeUuidCount() {
+      const count = Math.trunc(Number(uuidCount.value));
+      if (!Number.isFinite(count)) return 1;
+      return Math.min(Math.max(count, 1), 1000);
+    }
+
+    function updateUuidCountLabel() {
+      const count = uuidOutput.value.trim() ? uuidOutput.value.trim().split(/\n+/).length : 0;
+      uuidCountLabel.textContent = `${count} 条`;
+    }
+
+    function generateUuids() {
+      const count = normalizeUuidCount();
+      const letterCase = getUuidCase();
+      uuidCount.value = count;
+      const ids = Array.from({ length: count }, () => {
+        const id = createUuid();
+        return letterCase === "upper" ? id.toUpperCase() : id.toLowerCase();
+      });
+      uuidOutput.value = ids.join("\n");
+      updateUuidCountLabel();
+      setUuidStatus(`已生成 ${count} 条`);
+    }
+
+    async function copyUuids() {
+      if (!uuidOutput.value.trim()) {
+        setUuidStatus("没有可复制的内容");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(uuidOutput.value);
+        setUuidStatus("已复制");
+      } catch {
+        uuidOutput.select();
+        document.execCommand("copy");
+        setUuidStatus("已复制");
+      }
+    }
+
+    function clearUuids() {
+      uuidOutput.value = "";
+      updateUuidCountLabel();
+      uuidCount.focus();
+      setUuidStatus("已清空");
+    }
+
     function loadHistory() {
       try {
         return JSON.parse(localStorage.getItem("fox-tools-history") || "[]");
@@ -1653,6 +1893,12 @@
 
     document.querySelector("#clearTemperatureBtn").addEventListener("click", clearTemperatures);
     document.querySelector("#clearBaseBtn").addEventListener("click", clearBaseValues);
+    document.querySelector("#generateUuidBtn").addEventListener("click", generateUuids);
+    document.querySelector("#copyUuidBtn").addEventListener("click", copyUuids);
+    document.querySelector("#clearUuidBtn").addEventListener("click", clearUuids);
+    uuidCount.addEventListener("change", () => {
+      uuidCount.value = normalizeUuidCount();
+    });
 
     window.addEventListener("hashchange", () => setActiveTool(getInitialToolId()));
 
