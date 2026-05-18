@@ -838,6 +838,177 @@
       flex-wrap: wrap;
     }
 
+    .sticker-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .sticker-panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.94);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sticker-panel-body {
+      display: grid;
+      gap: 18px;
+      padding: 16px;
+    }
+
+    .dropzone {
+      display: grid;
+      min-height: 150px;
+      place-items: center;
+      padding: 18px;
+      border: 2px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(246, 244, 239, 0.68);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .dropzone.dragging,
+    .dropzone:hover {
+      border-color: var(--accent);
+      background: rgba(15, 118, 110, 0.07);
+    }
+
+    .dropzone strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .dropzone input {
+      display: none;
+    }
+
+    .setting-group {
+      display: grid;
+      gap: 10px;
+    }
+
+    .preset-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .preset-button {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: rgba(255, 253, 248, 0.88);
+      cursor: pointer;
+      font-weight: 720;
+    }
+
+    .preset-button.active {
+      color: #fff;
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .compact-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: rgba(255, 253, 248, 0.92);
+      font-weight: 720;
+      outline: 0;
+    }
+
+    .compact-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toggle-row input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+    }
+
+    .sticker-source-preview {
+      max-width: 100%;
+      max-height: 180px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .preview-tile {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.88);
+      overflow: hidden;
+    }
+
+    .preview-tile img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .preview-tile-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .download-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 980px) {
       .app-shell {
         grid-template-columns: 1fr;
@@ -894,6 +1065,10 @@
       .length-card {
         grid-template-columns: 1fr;
         align-items: stretch;
+      }
+
+      .sticker-layout {
+        grid-template-columns: 1fr;
       }
 
       .length-side {
@@ -1352,6 +1527,89 @@
           <div class="status" id="lengthStatus" role="status" aria-live="polite"></div>
         </section>
       </div>
+
+      <div class="tool-view" id="tool-sticker-cutter">
+        <section class="sticker-layout" aria-label="九宫格贴纸裁切工具">
+          <aside class="sticker-panel">
+            <div class="panel-head">
+              <span class="panel-title">上传与参数</span>
+              <span class="counter" id="stickerImageMeta">未上传</span>
+            </div>
+            <div class="sticker-panel-body">
+              <label class="dropzone" id="stickerDropzone">
+                <input id="stickerFileInput" type="file" accept="image/png,image/jpeg,image/webp">
+                <span>
+                  <strong>上传图片</strong>
+                  PNG / JPG / WebP，或拖拽到这里
+                </span>
+              </label>
+              <img class="sticker-source-preview" id="stickerSourcePreview" alt="原图预览" hidden>
+
+              <div class="setting-group">
+                <span class="form-label">网格预设</span>
+                <div class="preset-row">
+                  <button type="button" class="preset-button" data-sticker-preset="2">2×2</button>
+                  <button type="button" class="preset-button active" data-sticker-preset="3">3×3</button>
+                  <button type="button" class="preset-button" data-sticker-preset="4">4×4</button>
+                </div>
+              </div>
+
+              <div class="settings-grid">
+                <label>
+                  <span class="form-label">Rows</span>
+                  <input class="compact-input" id="stickerRows" type="number" min="1" max="12" value="3">
+                </label>
+                <label>
+                  <span class="form-label">Columns</span>
+                  <input class="compact-input" id="stickerCols" type="number" min="1" max="12" value="3">
+                </label>
+              </div>
+
+              <label class="toggle-row">
+                <span>
+                  <strong>自动识别间距</strong>
+                  <span class="tool-desc">适合白色或透明背景</span>
+                </span>
+                <input id="stickerAutoDetect" type="checkbox" checked>
+              </label>
+
+              <div class="settings-grid">
+                <label>
+                  <span class="form-label">Margin</span>
+                  <input class="compact-input" id="stickerMargin" type="number" min="0" value="0">
+                </label>
+                <label>
+                  <span class="form-label">Gap</span>
+                  <input class="compact-input" id="stickerGap" type="number" min="0" value="0">
+                </label>
+                <label>
+                  <span class="form-label">Padding</span>
+                  <input class="compact-input" id="stickerPadding" type="number" min="0" value="0">
+                </label>
+              </div>
+
+              <div class="panel-actions">
+                <button type="button" class="primary" id="stickerCutBtn">生成预览</button>
+                <button type="button" class="ghost" id="stickerAutoBtn">自动识别</button>
+                <button type="button" class="ghost" id="stickerClearBtn">清空</button>
+              </div>
+              <div class="status" id="stickerStatus" role="status" aria-live="polite"></div>
+            </div>
+          </aside>
+
+          <section class="sticker-panel">
+            <div class="panel-head">
+              <span class="panel-title">裁切预览</span>
+              <div class="panel-actions">
+                <button type="button" class="ghost" id="stickerExportZipBtn">导出 ZIP</button>
+              </div>
+            </div>
+            <div class="preview-grid" id="stickerPreviewGrid">
+              <div class="empty">上传图片后生成预览</div>
+            </div>
+          </section>
+        </section>
+      </div>
     </section>
   </main>
 
@@ -1475,6 +1733,19 @@
         ]
       },
       {
+        id: "sticker-cutter",
+        name: "九宫格贴纸裁切",
+        category: "图像工具",
+        description: "按网格裁切贴纸头像并导出 ZIP",
+        icon: "九",
+        status: "ready",
+        help: [
+          "上传 PNG、JPG 或 WebP 图片",
+          "选择网格预设或设置 Rows / Columns",
+          "生成预览后单张下载或导出 ZIP"
+        ]
+      },
+      {
         id: "url-codec",
         name: "URL 编解码",
         category: "开发工具",
@@ -1531,6 +1802,19 @@
     const lengthFromValue = document.querySelector("#lengthFromValue");
     const lengthToValue = document.querySelector("#lengthToValue");
     const lengthStatus = document.querySelector("#lengthStatus");
+    const stickerDropzone = document.querySelector("#stickerDropzone");
+    const stickerFileInput = document.querySelector("#stickerFileInput");
+    const stickerImageMeta = document.querySelector("#stickerImageMeta");
+    const stickerSourcePreview = document.querySelector("#stickerSourcePreview");
+    const stickerRows = document.querySelector("#stickerRows");
+    const stickerCols = document.querySelector("#stickerCols");
+    const stickerAutoDetect = document.querySelector("#stickerAutoDetect");
+    const stickerMargin = document.querySelector("#stickerMargin");
+    const stickerGap = document.querySelector("#stickerGap");
+    const stickerPadding = document.querySelector("#stickerPadding");
+    const stickerPreviewGrid = document.querySelector("#stickerPreviewGrid");
+    const stickerStatus = document.querySelector("#stickerStatus");
+    const stickerPresetButtons = [...document.querySelectorAll("[data-sticker-preset]")];
 
     let mode = "s2t";
     let activeToolId = "chinese-converter";
@@ -1539,11 +1823,15 @@
     let baseStatusTimer;
     let uuidStatusTimer;
     let lengthStatusTimer;
+    let stickerStatusTimer;
     let saveTimer;
     let syncingTemperature = false;
     let syncingBase = false;
     let syncingLength = false;
     let activeLengthSide = "from";
+    let stickerImageUrl = "";
+    let stickerSourceCanvas = null;
+    let stickerPieces = [];
 
     function renderToolNav() {
       const query = toolSearch.value.trim().toLowerCase();
@@ -1722,6 +2010,14 @@
       lengthStatusTimer = setTimeout(() => {
         lengthStatus.textContent = "";
       }, 1800);
+    }
+
+    function setStickerStatus(text) {
+      clearTimeout(stickerStatusTimer);
+      stickerStatus.textContent = text;
+      stickerStatusTimer = setTimeout(() => {
+        stickerStatus.textContent = "";
+      }, 2200);
     }
 
     const lengthUnits = [
@@ -2044,6 +2340,356 @@
       setUuidStatus("已清空");
     }
 
+    function revokeStickerPieces() {
+      stickerPieces.forEach(piece => URL.revokeObjectURL(piece.url));
+      stickerPieces = [];
+    }
+
+    function normalizeStickerNumber(input, min, max) {
+      const value = Math.trunc(Number(input.value));
+      const normalized = Number.isFinite(value) ? Math.min(Math.max(value, min), max) : min;
+      input.value = normalized;
+      return normalized;
+    }
+
+    function updateStickerPresetState() {
+      const rows = Number(stickerRows.value);
+      const cols = Number(stickerCols.value);
+      stickerPresetButtons.forEach(button => {
+        const size = Number(button.dataset.stickerPreset);
+        button.classList.toggle("active", rows === size && cols === size);
+      });
+    }
+
+    function getStickerSettings() {
+      const rows = normalizeStickerNumber(stickerRows, 1, 12);
+      const cols = normalizeStickerNumber(stickerCols, 1, 12);
+      const margin = Math.max(0, Number(stickerMargin.value) || 0);
+      const gap = Math.max(0, Number(stickerGap.value) || 0);
+      const padding = Math.max(0, Number(stickerPadding.value) || 0);
+      stickerMargin.value = margin;
+      stickerGap.value = gap;
+      stickerPadding.value = padding;
+      updateStickerPresetState();
+      return { rows, cols, margin, gap, padding };
+    }
+
+    function isBlankPixel(data, index) {
+      const red = data[index];
+      const green = data[index + 1];
+      const blue = data[index + 2];
+      const alpha = data[index + 3];
+      return alpha <= 12 || (red >= 245 && green >= 245 && blue >= 245 && Math.max(red, green, blue) - Math.min(red, green, blue) <= 12);
+    }
+
+    function getBlankLineRuns(lines) {
+      const runs = [];
+      let start = -1;
+      for (let index = 0; index <= lines.length; index += 1) {
+        if (lines[index] && start < 0) start = index;
+        if ((!lines[index] || index === lines.length) && start >= 0) {
+          const end = index - 1;
+          if (end - start + 1 >= 2) runs.push({ start, end, length: end - start + 1 });
+          start = -1;
+        }
+      }
+      return runs;
+    }
+
+    function scanBlankLines(canvas, axis) {
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      const { width, height } = canvas;
+      const { data } = context.getImageData(0, 0, width, height);
+      const lines = [];
+      const count = axis === "x" ? width : height;
+      const span = axis === "x" ? height : width;
+
+      for (let line = 0; line < count; line += 1) {
+        let blanks = 0;
+        for (let offset = 0; offset < span; offset += 1) {
+          const x = axis === "x" ? line : offset;
+          const y = axis === "x" ? offset : line;
+          if (isBlankPixel(data, (y * width + x) * 4)) blanks += 1;
+        }
+        lines.push(blanks / span >= 0.985);
+      }
+
+      return getBlankLineRuns(lines);
+    }
+
+    function inferStickerAxis(runs, total, cells) {
+      const edgeThreshold = Math.max(2, Math.round(total * 0.02));
+      const startRun = runs.find(run => run.start <= edgeThreshold);
+      const endRun = [...runs].reverse().find(run => run.end >= total - 1 - edgeThreshold);
+      const marginStart = startRun ? startRun.end + 1 : 0;
+      const marginEnd = endRun ? total - endRun.start : 0;
+      const internalRuns = runs
+        .filter(run => run.start > edgeThreshold && run.end < total - 1 - edgeThreshold)
+        .sort((a, b) => b.length - a.length)
+        .slice(0, Math.max(0, cells - 1));
+      const gap = internalRuns.length
+        ? internalRuns.reduce((sum, run) => sum + run.length, 0) / internalRuns.length
+        : 0;
+      return { marginStart, marginEnd, gap };
+    }
+
+    function averagePositive(values) {
+      const positive = values.filter(value => value > 0);
+      if (!positive.length) return 0;
+      return positive.reduce((sum, value) => sum + value, 0) / positive.length;
+    }
+
+    function autoDetectStickerGrid() {
+      if (!stickerSourceCanvas) {
+        setStickerStatus("请先上传图片");
+        return false;
+      }
+
+      const rows = normalizeStickerNumber(stickerRows, 1, 12);
+      const cols = normalizeStickerNumber(stickerCols, 1, 12);
+      const verticalRuns = scanBlankLines(stickerSourceCanvas, "x");
+      const horizontalRuns = scanBlankLines(stickerSourceCanvas, "y");
+      const xAxis = inferStickerAxis(verticalRuns, stickerSourceCanvas.width, cols);
+      const yAxis = inferStickerAxis(horizontalRuns, stickerSourceCanvas.height, rows);
+      const margin = Math.round(averagePositive([xAxis.marginStart, xAxis.marginEnd, yAxis.marginStart, yAxis.marginEnd]));
+      const gap = Math.round(averagePositive([xAxis.gap, yAxis.gap]));
+
+      if (!margin && !gap) {
+        setStickerStatus("未识别到明显空隙，可手动调整参数");
+        return false;
+      }
+
+      stickerMargin.value = margin;
+      stickerGap.value = gap;
+      setStickerStatus(`已识别 Margin ${margin}px，Gap ${gap}px`);
+      return true;
+    }
+
+    async function loadStickerFile(file) {
+      if (!file) return;
+      if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+        setStickerStatus("仅支持 PNG、JPG、WebP");
+        return;
+      }
+
+      const nextUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        if (stickerImageUrl) URL.revokeObjectURL(stickerImageUrl);
+        stickerImageUrl = nextUrl;
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        stickerSourceCanvas = canvas;
+        stickerSourcePreview.src = nextUrl;
+        stickerSourcePreview.hidden = false;
+        stickerImageMeta.textContent = `${image.naturalWidth}×${image.naturalHeight}`;
+        revokeStickerPieces();
+        if (stickerAutoDetect.checked) autoDetectStickerGrid();
+        generateStickerPreviews();
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(nextUrl);
+        setStickerStatus("图片读取失败");
+      };
+      image.src = nextUrl;
+    }
+
+    function drawStickerPiece(sourceCanvas, sourceRect) {
+      const width = Math.max(1, Math.round(sourceRect.width));
+      const height = Math.max(1, Math.round(sourceRect.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d").drawImage(
+        sourceCanvas,
+        sourceRect.x,
+        sourceRect.y,
+        sourceRect.width,
+        sourceRect.height,
+        0,
+        0,
+        width,
+        height
+      );
+      return new Promise(resolve => canvas.toBlob(blob => resolve(blob), "image/png"));
+    }
+
+    async function generateStickerPreviews() {
+      if (!stickerSourceCanvas) {
+        setStickerStatus("请先上传图片");
+        return;
+      }
+
+      const { rows, cols, margin, gap, padding } = getStickerSettings();
+      const usableWidth = stickerSourceCanvas.width - margin * 2 - gap * (cols - 1);
+      const usableHeight = stickerSourceCanvas.height - margin * 2 - gap * (rows - 1);
+      const cellWidth = usableWidth / cols;
+      const cellHeight = usableHeight / rows;
+
+      if (cellWidth <= padding * 2 || cellHeight <= padding * 2) {
+        setStickerStatus("参数过大，无法裁切");
+        return;
+      }
+
+      revokeStickerPieces();
+      stickerPreviewGrid.innerHTML = "";
+      let index = 1;
+      for (let row = 0; row < rows; row += 1) {
+        for (let col = 0; col < cols; col += 1) {
+          const rect = {
+            x: margin + col * (cellWidth + gap) + padding,
+            y: margin + row * (cellHeight + gap) + padding,
+            width: cellWidth - padding * 2,
+            height: cellHeight - padding * 2
+          };
+          const blob = await drawStickerPiece(stickerSourceCanvas, rect);
+          const url = URL.createObjectURL(blob);
+          const name = `sticker-${String(index).padStart(2, "0")}.png`;
+          stickerPieces.push({ index, name, blob, url });
+          index += 1;
+        }
+      }
+
+      renderStickerPieces();
+      setStickerStatus(`已生成 ${stickerPieces.length} 张预览`);
+    }
+
+    function renderStickerPieces() {
+      stickerPreviewGrid.innerHTML = "";
+      if (!stickerPieces.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "上传图片后生成预览";
+        stickerPreviewGrid.append(empty);
+        return;
+      }
+
+      for (const piece of stickerPieces) {
+        const tile = document.createElement("article");
+        tile.className = "preview-tile";
+        tile.innerHTML = `
+          <img alt="">
+          <div class="preview-tile-footer">
+            <span></span>
+            <a class="download-link">下载</a>
+          </div>
+        `;
+        tile.querySelector("img").src = piece.url;
+        tile.querySelector("img").alt = `贴纸 ${piece.index}`;
+        tile.querySelector("span").textContent = `#${String(piece.index).padStart(2, "0")}`;
+        const link = tile.querySelector("a");
+        link.href = piece.url;
+        link.download = piece.name;
+        stickerPreviewGrid.append(tile);
+      }
+    }
+
+    const crcTable = Array.from({ length: 256 }, (_, index) => {
+      let value = index;
+      for (let bit = 0; bit < 8; bit += 1) {
+        value = value & 1 ? 0xedb88320 ^ value >>> 1 : value >>> 1;
+      }
+      return value >>> 0;
+    });
+
+    function crc32(bytes) {
+      let crc = 0xffffffff;
+      for (const byte of bytes) {
+        crc = crcTable[(crc ^ byte) & 0xff] ^ crc >>> 8;
+      }
+      return (crc ^ 0xffffffff) >>> 0;
+    }
+
+    function uint16(value) {
+      const bytes = new Uint8Array(2);
+      new DataView(bytes.buffer).setUint16(0, value, true);
+      return bytes;
+    }
+
+    function uint32(value) {
+      const bytes = new Uint8Array(4);
+      new DataView(bytes.buffer).setUint32(0, value >>> 0, true);
+      return bytes;
+    }
+
+    function concatBytes(chunks) {
+      const size = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+      const output = new Uint8Array(size);
+      let offset = 0;
+      for (const chunk of chunks) {
+        output.set(chunk, offset);
+        offset += chunk.length;
+      }
+      return output;
+    }
+
+    async function createZipBlob(files) {
+      const encoder = new TextEncoder();
+      const localChunks = [];
+      const centralChunks = [];
+      let offset = 0;
+
+      for (const file of files) {
+        const data = new Uint8Array(await file.blob.arrayBuffer());
+        const nameBytes = encoder.encode(file.name);
+        const checksum = crc32(data);
+        const localHeader = concatBytes([
+          uint32(0x04034b50), uint16(20), uint16(0), uint16(0), uint16(0), uint16(0),
+          uint32(checksum), uint32(data.length), uint32(data.length), uint16(nameBytes.length), uint16(0), nameBytes
+        ]);
+        const centralHeader = concatBytes([
+          uint32(0x02014b50), uint16(20), uint16(20), uint16(0), uint16(0), uint16(0), uint16(0),
+          uint32(checksum), uint32(data.length), uint32(data.length), uint16(nameBytes.length), uint16(0), uint16(0),
+          uint16(0), uint16(0), uint32(0), uint32(offset), nameBytes
+        ]);
+        localChunks.push(localHeader, data);
+        centralChunks.push(centralHeader);
+        offset += localHeader.length + data.length;
+      }
+
+      const centralOffset = offset;
+      const centralSize = centralChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+      const endRecord = concatBytes([
+        uint32(0x06054b50), uint16(0), uint16(0), uint16(files.length), uint16(files.length),
+        uint32(centralSize), uint32(centralOffset), uint16(0)
+      ]);
+      return new Blob([...localChunks, ...centralChunks, endRecord], { type: "application/zip" });
+    }
+
+    async function exportStickerZip() {
+      if (!stickerPieces.length) {
+        await generateStickerPreviews();
+      }
+      if (!stickerPieces.length) return;
+
+      const zip = await createZipBlob(stickerPieces);
+      const url = URL.createObjectURL(zip);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "stickers-grid.zip";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setStickerStatus("ZIP 已导出");
+    }
+
+    function clearStickerCutter() {
+      if (stickerImageUrl) URL.revokeObjectURL(stickerImageUrl);
+      stickerImageUrl = "";
+      stickerSourceCanvas = null;
+      stickerSourcePreview.hidden = true;
+      stickerSourcePreview.removeAttribute("src");
+      stickerFileInput.value = "";
+      stickerImageMeta.textContent = "未上传";
+      stickerMargin.value = 0;
+      stickerGap.value = 0;
+      stickerPadding.value = 0;
+      revokeStickerPieces();
+      renderStickerPieces();
+      setStickerStatus("已清空");
+    }
+
     function loadHistory() {
       try {
         return JSON.parse(localStorage.getItem("fox-tools-history") || "[]");
@@ -2117,6 +2763,43 @@
     });
     lengthFromUnit.addEventListener("change", () => convertLength(activeLengthSide));
     lengthToUnit.addEventListener("change", () => convertLength(activeLengthSide));
+    stickerDropzone.addEventListener("dragover", event => {
+      event.preventDefault();
+      stickerDropzone.classList.add("dragging");
+    });
+    stickerDropzone.addEventListener("dragleave", () => {
+      stickerDropzone.classList.remove("dragging");
+    });
+    stickerDropzone.addEventListener("drop", event => {
+      event.preventDefault();
+      stickerDropzone.classList.remove("dragging");
+      loadStickerFile(event.dataTransfer.files[0]);
+    });
+    stickerFileInput.addEventListener("change", () => loadStickerFile(stickerFileInput.files[0]));
+    stickerPresetButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const size = Number(button.dataset.stickerPreset);
+        stickerRows.value = size;
+        stickerCols.value = size;
+        updateStickerPresetState();
+        if (stickerSourceCanvas) {
+          if (stickerAutoDetect.checked) autoDetectStickerGrid();
+          generateStickerPreviews();
+        }
+      });
+    });
+    [stickerRows, stickerCols, stickerMargin, stickerGap, stickerPadding].forEach(input => {
+      input.addEventListener("change", () => {
+        getStickerSettings();
+        if (stickerSourceCanvas) generateStickerPreviews();
+      });
+    });
+    stickerAutoDetect.addEventListener("change", () => {
+      if (stickerAutoDetect.checked && stickerSourceCanvas) {
+        autoDetectStickerGrid();
+        generateStickerPreviews();
+      }
+    });
 
     document.querySelector("#swapBtn").addEventListener("click", () => {
       const input = source.value;
@@ -2175,6 +2858,12 @@
     document.querySelector("#clearUuidBtn").addEventListener("click", clearUuids);
     document.querySelector("#swapLengthBtn").addEventListener("click", swapLengthUnits);
     document.querySelector("#clearLengthBtn").addEventListener("click", clearLengthValues);
+    document.querySelector("#stickerCutBtn").addEventListener("click", generateStickerPreviews);
+    document.querySelector("#stickerAutoBtn").addEventListener("click", () => {
+      if (autoDetectStickerGrid()) generateStickerPreviews();
+    });
+    document.querySelector("#stickerClearBtn").addEventListener("click", clearStickerCutter);
+    document.querySelector("#stickerExportZipBtn").addEventListener("click", exportStickerZip);
     uuidCount.addEventListener("change", () => {
       uuidCount.value = normalizeUuidCount();
     });
@@ -2183,6 +2872,7 @@
 
     populateLengthUnits();
     convertLength("from");
+    updateStickerPresetState();
     setActiveTool(getInitialToolId());
     convert();
     renderHistory();
